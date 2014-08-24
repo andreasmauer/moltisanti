@@ -1,6 +1,3 @@
-#function that crawls a sitemap and create html files with it
-#next step is to crawl the next pages
-
 import urllib2
 import urllib
 import os
@@ -10,16 +7,13 @@ import random
 
 
 
-def append_new_row(filepath, text):
-    with open(filepath, 'a') as f:
-        mycsv = csv.writer(f, delimiter=',', lineterminator='\n')
-        mycsv.writerow(text)
+# def append_new_row(filepath, text):
+#     with open(filepath, 'a') as f:
+#         mycsv = csv.writer(f, delimiter=',', lineterminator='\n')
+#         mycsv.writerow(text)
 
 
 
-
-
-#import httplib
 
 
 ### the class Serp
@@ -33,7 +27,10 @@ def append_new_row(filepath, text):
 ###		 - shooter, for testing, it shoot all those functions
 
 ###	to do:
-###		
+###		adding SEM links, adding shopping, images
+### IMPORTANT:
+### I NEED TO LAUNCH THE HTML CRAWLER JUST ONCE PER QUERY. IT IS LAUNCHED ON __INIT__
+
 
 class Serp:
 
@@ -42,18 +39,13 @@ class Serp:
 		self.http_header_response = ''
 		self.url = url
 		self.links = []
+		self.htmlcrawler()
+
 
 	def htmlcrawler (self):
 
-		# #open the sitemap file
-		# f = open(sitemap, 'r+')
-		# lines = f.readlines()
-
-
-		# #read line to line of the sitemap
-		# for item in lines:
-		
-		print self.url
+		# I NEED TO LAUNCH THE HTML CRAWLER JUST ONCE PER QUERY. IT IS LAUNCHED ON __INIT__
+		#print self.url
 			
 		# create a random sleep time between 0.5 secs and 1.5
 		randomfloat = random.uniform(0.5, 1.5)
@@ -67,69 +59,72 @@ class Serp:
 		self.http_header_response = response.info()
 
 
-
-		# print self.html
-
-
-		# print self.http_header_response
-
-
-
-
-
 	def findlinks (self):
 
-		# self.htmlcrawler()
+	
+
+		# splitting the html code in order to get the clean links
+		
 		links = self.html.split('<li class="g">')
 
 		for link in links[1:]:
 			subitem = link.split('<a href="')
-			
-
-			
 			subsubitem = subitem[1].split('&amp')
 
-			#trying to decode the amazon url from utf-8 but didnt work out
-			# h = HTMLParser.HTMLParser()
-
-
-
+		
+		# cleaning the response, changing weird urls for utf8
 
 			s = subsubitem[0].replace('/url?q=', '')
-			# print h.unescape(s)
-			# sencoded = urllib.urlencode(s)
-
 			s = urllib.unquote(s).decode('utf8')
+
+		# sending the links to the list self.links	
 			self.links.append(s)
 
-			
-		# for link in links[1:]:
-		# 	print link
-		# 	print '--------------------------'
+	def returnRanking (self, website):
 
-	def show (self):
+		if self.findlinks() == []:
+			self.findlinks()
+
+		i = 1
+		for link in self.links:
+
+			if website in link:
+
+				ranking = i
+
+				return ranking
+
+				break
+
+			i = i + 1
+	
+		
+	
+	def returnLandingPage(self, website):
+		
+		if self.findlinks() == []:
+			self.findlinks()
+
+		for link in self.links:
+
+			if website in link:
+
+				return link
+
+				break
+
+	def returnLinks(self):
+
+		if self.findlinks() == []:
+			self.findlinks()
 
 		print self.links
-
-		for element in self.links:
-			with open('test.csv', 'a') as f:
-				f.write(element)
-				f.write('\n')
-				f.close()
+		return links
 
 
 
-
-
-	def shooter (self):
-		self.htmlcrawler()
-		self.findlinks()
-		self.show()
-
-
-
-a = Serp('http://www.google.de/search?hl=de&q=kontaktlinsen')	
-a.shooter()
+# a = Serp('http://www.google.de/search?hl=de&q=kontaktlinsen')	
+# a.returnRanking('misterspex')
 #crawlurl('http://www.google.de/search?hl=de&q=kontaktlinsen')
 #print html
 
